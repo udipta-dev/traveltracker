@@ -4,12 +4,25 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { signInWithPopup, signOut } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, googleProvider, db } from "../firebase";
-import Map from "./Map"; // ← We bring the map in here
+import Map from "./Map";
+import useCountryNames from "../hooks/useCountryNames";
+
+const extraCountryNames = [
+  "Andorra", "Antigua and Barbuda", "Bahrain", "Barbados", "Belau",
+  "Brunei", "Comoros", "Dominica", "Kiribati", "Liechtenstein",
+  "Maldives", "Marshall Islands", "Micronesia", "Monaco", "Nauru",
+  "Oman", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines",
+  "Samoa", "San Marino", "São Tomé and Príncipe", "Seychelles", "Singapore",
+  "Solomon Islands", "Timor-Leste", "Tonga", "Tuvalu", "Vatican City",
+];
 
 export default function TravelApp() {
   const [user] = useAuthState(auth);
   const [countryStatuses, setCountryStatuses] = useState({});
   const hasLoadedFromFirestore = useRef(false);
+
+  const countriesFromMap = useCountryNames();
+  const countries = Array.from(new Set([...countriesFromMap, ...extraCountryNames])).sort();
 
   useEffect(() => {
     if (user) {
@@ -82,11 +95,36 @@ export default function TravelApp() {
             <strong>✈️ Wishlist:</strong> {wishlist.length}
           </div>
 
-          {/* ✅ Render the actual interactive map */}
           <Map
             onCountrySelect={handleToggleCountry}
             countryStatuses={countryStatuses}
           />
+
+          <h2 style={{ marginTop: "30px" }}>All Countries</h2>
+          <ul style={{ columns: 3, listStyle: "none", paddingLeft: 0 }}>
+            {countries.map((country) => {
+              const status = countryStatuses[country] || "none";
+              return (
+                <li
+                  key={country}
+                  onClick={() => handleToggleCountry(country)}
+                  style={{
+                    cursor: "pointer",
+                    color:
+                      status === "visited"
+                        ? "lightgreen"
+                        : status === "wishlist"
+                        ? "gold"
+                        : "#aaa",
+                    padding: "4px 0",
+                    userSelect: "none",
+                  }}
+                >
+                  {country}
+                </li>
+              );
+            })}
+          </ul>
         </>
       )}
     </div>
