@@ -108,7 +108,22 @@ export default function TravelApp() {
               Sign out
             </button>
           </div>
-        ) : null}
+        ) : (
+          <button
+            onClick={() => signInWithPopup(auth, googleProvider)}
+            style={{
+              padding: "6px 12px",
+              backgroundColor: "#334155",
+              color: "#fff",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              marginTop: "10px",
+            }}
+          >
+            Sign in with Google
+          </button>
+        )}
       </div>
 
       {/* Stats */}
