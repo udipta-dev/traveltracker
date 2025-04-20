@@ -1,13 +1,45 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { signInWithPopup, signOut } from "firebase/auth";
-import { auth, googleProvider } from "../firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { auth, googleProvider, db } from "../firebase";
 
 export default function TravelApp() {
   const [user] = useAuthState(auth);
   const [countryStatuses, setCountryStatuses] = useState({});
   const dummyCountries = ["France", "Japan", "Brazil", "Canada"];
+  const hasLoadedFromFirestore = useRef(false);
+
+  // Load saved country statuses from Firestore
+  useEffect(() => {
+    if (user) {
+      const fetchData = async () => {
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setCountryStatuses(docSnap.data().countryStatuses || {});
+        } else {
+          setCountryStatuses({});
+        }
+        hasLoadedFromFirestore.current = true;
+      };
+      fetchData();
+    } else {
+      setCountryStatuses({});
+      hasLoadedFromFirestore.current = false;
+    }
+  }, [user]);
+
+  // Save to Firestore on state change (skip first load)
+  useEffect(() => {
+    if (user && hasLoadedFromFirestore.current) {
+      const saveData = async () => {
+        await setDoc(doc(db, "users", user.uid), { countryStatuses });
+      };
+      saveData();
+    }
+  }, [countryStatuses, user]);
 
   const handleToggleCountry = (country) => {
     setCountryStatuses((prev) => {
