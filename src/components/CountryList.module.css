@@ -1,0 +1,42 @@
+.wrapper {
+    max-width: 800px;
+    margin: 20px auto;
+  }
+  
+  .heading {
+    margin-bottom: 12px;
+    font-size: 1.5rem;
+  }
+  
+  .list {
+    columns: 3;
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  .countryItem {
+    padding: 6px 10px;
+    margin-bottom: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+  
+  .countryItem:hover {
+    text-decoration: underline;
+  }
+  
+  .wishlist {
+    color: #4ea8de; /* pastel sky blue */
+  }
+  
+  .visited {
+    color: #f472b6; /* pastel pink */
+  }
+  
+  .none {
+    color: #94a3b8; /* muted slate gray */
+  }
+  
