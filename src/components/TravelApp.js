@@ -1,10 +1,11 @@
 "use client";
 import React, { useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth, googleProvider } from "../firebase";
 import styles from "../pages/Home.module.css";
 
-const dummyCountries = ["France", "Japan", "Brazil", "Canada"];
-
 export default function TravelApp() {
+  const [user] = useAuthState(auth);
   const [countryStatuses, setCountryStatuses] = useState({});
 
   const handleToggleCountry = (country) => {
@@ -20,18 +21,34 @@ export default function TravelApp() {
     });
   };
 
-  const wishlist = Object.entries(countryStatuses)
-    .filter(([_, status]) => status === "wishlist")
-    .map(([name]) => name);
+  const wishlist = Object.entries(countryStatuses).filter(
+    ([, status]) => status === "wishlist"
+  );
+  const visited = Object.entries(countryStatuses).filter(
+    ([, status]) => status === "visited"
+  );
 
-  const visited = Object.entries(countryStatuses)
-    .filter(([_, status]) => status === "visited")
-    .map(([name]) => name);
+  const dummyCountries = ["France", "Japan", "Brazil", "Canada"];
 
   return (
     <div className={styles.innerContainer}>
       <div className={styles.header}>
         <h1 className={styles.title}>Travel Tracker</h1>
+        {user ? (
+          <div className={styles.userInfo}>
+            <img
+              src={user.photoURL}
+              alt={user.displayName}
+              className={styles.avatar}
+            />
+            <span>{user.displayName}</span>
+            <button onClick={() => auth.signOut()}>Sign out</button>
+          </div>
+        ) : (
+          <button onClick={() => auth.signInWithPopup(googleProvider)}>
+            Sign in with Google
+          </button>
+        )}
       </div>
 
       <div className={styles.statsBar}>
@@ -39,23 +56,33 @@ export default function TravelApp() {
         <span>✈️ Wishlist: {wishlist.length}</span>
       </div>
 
-      <div style={{ paddingTop: "20px" }}>
-        <h2>Click to toggle:</h2>
-        <ul>
-          {dummyCountries.map((country) => {
-            const status = countryStatuses[country] || "none";
-            return (
-              <li
-                key={country}
-                style={{ cursor: "pointer", color: status === "visited" ? "lightgreen" : status === "wishlist" ? "gold" : "#aaa" }}
-                onClick={() => handleToggleCountry(country)}
-              >
-                {country} — {status}
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+      {user && (
+        <>
+          <h2>Click to toggle:</h2>
+          <ul>
+            {dummyCountries.map((country) => {
+              const status = countryStatuses[country] || "none";
+              return (
+                <li
+                  key={country}
+                  onClick={() => handleToggleCountry(country)}
+                  style={{
+                    cursor: "pointer",
+                    color:
+                      status === "visited"
+                        ? "lightgreen"
+                        : status === "wishlist"
+                        ? "gold"
+                        : "#aaa",
+                  }}
+                >
+                  {country} — {status}
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
     </div>
   );
 }
