@@ -1,13 +1,20 @@
 "use client";
 import React from "react";
+import styles from "../pages/Home.module.css";
 
 export default function TravelApp() {
-  console.log("✅ TravelApp rendered");
+  console.log("🧱 TravelApp: layout + styles loaded");
 
   return (
-    <div style={{ padding: "50px", color: "#fff", textAlign: "center" }}>
-      <h1>Hello from TravelApp 🌍</h1>
-      <p>If you're seeing this, your client-only app component is rendering.</p>
+    <div className={styles.innerContainer}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Travel Tracker</h1>
+      </div>
+
+      <div className={styles.statsBar}>
+        <span>✅ Visited: 0</span>
+        <span>✈️ Wishlist: 0</span>
+      </div>
     </div>
   );
 }
