@@ -52,7 +52,16 @@ export default function TravelApp() {
     }
   }, [countryStatuses, user]);
 
-  const handleToggleCountry = (country) => {
+  const handleToggleCountry = async (country) => {
+    if (!user) {
+      try {
+        await signInWithPopup(auth, googleProvider);
+      } catch (err) {
+        console.error("Login cancelled or failed", err);
+        return;
+      }
+    }
+
     setCountryStatuses((prev) => {
       const current = prev[country] || "none";
       const next =
@@ -99,79 +108,73 @@ export default function TravelApp() {
               Sign out
             </button>
           </div>
-        ) : (
-          <button
-            onClick={() => signInWithPopup(auth, googleProvider)}
-            style={{
-              padding: "6px 12px",
-              backgroundColor: "#334155",
-              color: "#fff",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              marginTop: "10px",
-            }}
-          >
-            Sign in with Google
-          </button>
-        )}
+        ) : null}
       </div>
 
       {/* Stats */}
       {user && (
-        <div style={{ marginBottom: "16px" }}>
-          <strong>✅ Visited:</strong> {visited.length} &nbsp;&nbsp;
-          <strong>✈️ Wishlist:</strong> {wishlist.length}
+        <div
+          style={{
+            margin: "20px auto",
+            padding: "10px 20px",
+            maxWidth: 300,
+            background: "rgba(255, 255, 255, 0.1)",
+            border: "1px solid rgba(255, 255, 255, 0.3)",
+            borderRadius: "10px",
+            fontWeight: "bold",
+            fontSize: "16px",
+            backdropFilter: "blur(4px)",
+            boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+          }}
+        >
+          <span>✅ Visited: {visited.length}</span>
+          <span style={{ marginLeft: "16px" }}>✈️ Wishlist: {wishlist.length}</span>
         </div>
       )}
 
       {/* Map */}
-      {user && (
-        <Map
-          onCountrySelect={handleToggleCountry}
-          countryStatuses={countryStatuses}
-        />
-      )}
+      <Map
+        onCountrySelect={handleToggleCountry}
+        countryStatuses={countryStatuses}
+      />
 
       {/* Country List */}
-      {user && (
-        <>
-          <h2 style={{ marginTop: "30px" }}>All Countries</h2>
-          <ul style={{ columns: 3, listStyle: "none", paddingLeft: 0 }}>
-            {countries.map((country) => {
-              const status = countryStatuses[country] || "none";
-              let color = "#94a3b8";
-              if (status === "wishlist") color = "#a5d8ff";
-              if (status === "visited") color = "#ffc9de";
+      <>
+        <h2 style={{ marginTop: "30px" }}>All Countries</h2>
+        <ul style={{ columns: 3, listStyle: "none", paddingLeft: 0 }}>
+          {countries.map((country) => {
+            const status = countryStatuses[country] || "none";
+            let color = "#94a3b8";
+            if (status === "wishlist") color = "#a5d8ff";
+            if (status === "visited") color = "#ffc9de";
 
-              const emoji =
-                status === "wishlist"
-                  ? "✈️"
-                  : status === "visited"
-                  ? "✅"
-                  : "";
+            const emoji =
+              status === "wishlist"
+                ? "✈️"
+                : status === "visited"
+                ? "✅"
+                : "";
 
-              return (
-                <li
-                  key={country}
-                  onClick={() => handleToggleCountry(country)}
-                  style={{
-                    cursor: "pointer",
-                    color,
-                    padding: "4px 0",
-                    userSelect: "none",
-                    fontWeight: status !== "none" ? "bold" : "normal",
-                    transition: "color 0.3s ease",
-                  }}
-                  title="Click to toggle status"
-                >
-                  {emoji} {country}
-                </li>
-              );
-            })}
-          </ul>
-        </>
-      )}
+            return (
+              <li
+                key={country}
+                onClick={() => handleToggleCountry(country)}
+                style={{
+                  cursor: "pointer",
+                  color,
+                  padding: "4px 0",
+                  userSelect: "none",
+                  fontWeight: status !== "none" ? "bold" : "normal",
+                  transition: "color 0.3s ease",
+                }}
+                title="Click to toggle status"
+              >
+                {emoji} {country}
+              </li>
+            );
+          })}
+        </ul>
+      </>
     </div>
   );
 }
