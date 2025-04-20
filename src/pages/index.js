@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
+import { useAuthState as useAuthStateBase } from "react-firebase-hooks/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import Map from "../components/Map";
@@ -8,14 +8,22 @@ import styles from "./Home.module.css";
 import CountryList from "../components/CountryList";
 import useCountryNames from "../hooks/useCountryNames";
 
-const extraCountryNames = [ /* ... your list ... */];
+const extraCountryNames = [ /* ... your list ... */ ];
 
 export default function Home() {
   const [countryStatuses, setCountryStatuses] = useState({});
   const countriesFromMap = useCountryNames();
   const countries = Array.from(new Set([...countriesFromMap, ...extraCountryNames])).sort();
-  const [user, loading, error] = useAuthState(auth);
 
+  // ✅ Safe wrapper for useAuthState on client only
+  const useAuthSafe = () => {
+    if (typeof window === "undefined" || !auth) {
+      return [null, true, null];
+    }
+    return useAuthStateBase(auth);
+  };
+
+  const [user, loading, error] = useAuthSafe();
   const hasLoadedFromFirestore = useRef(false);
 
   useEffect(() => {
