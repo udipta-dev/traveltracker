@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect, useRef, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -13,6 +12,8 @@ import useCountryNames from "../hooks/useCountryNames";
 const extraCountryNames = [ /* ... your list ... */ ];
 
 export default function TravelApp() {
+  console.log("🚀 TravelApp mounted in browser");
+
   const [countryStatuses, setCountryStatuses] = useState({});
   const [user, loading, error] = useAuthState(auth);
   const countriesFromMap = useCountryNames();
@@ -67,6 +68,8 @@ export default function TravelApp() {
   const visited = Object.entries(countryStatuses)
     .filter(([_, status]) => status === "visited")
     .map(([name]) => name);
+
+  console.log("👋 TravelApp rendering...");
 
   return (
     <div className={styles.innerContainer}>
