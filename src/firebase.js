@@ -12,23 +12,24 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || "",
 };
 
-const app = typeof window !== "undefined"
-  ? !getApps().length
-    ? initializeApp(firebaseConfig)
-    : getApp()
-  : null;
+const app =
+  typeof window !== "undefined"
+    ? !getApps().length
+      ? initializeApp(firebaseConfig)
+      : getApp()
+    : initializeApp(firebaseConfig); // safe fallback
 
-export const auth = app ? getAuth(app) : null;
-export const googleProvider = app ? new GoogleAuthProvider() : null;
-export const db = app ? getFirestore(app) : null;
+export const auth = getAuth(app);
+export const googleProvider = new GoogleAuthProvider();
+export const db = getFirestore(app);
 
-// Enable IndexedDB offline support, but only in browser
-if (typeof window !== "undefined" && db) {
+// Enable persistence only in browser
+if (typeof window !== "undefined") {
   enableIndexedDbPersistence(db).catch((err) => {
     if (err.code === "failed-precondition") {
-      console.warn("Firestore persistence failed: Multiple tabs open");
+      console.warn("Persistence failed: multiple tabs");
     } else if (err.code === "unimplemented") {
-      console.warn("Firestore persistence not available in this browser");
+      console.warn("Persistence not supported");
     }
   });
 }
