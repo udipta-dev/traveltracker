@@ -4,14 +4,13 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { signInWithPopup, signOut } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, googleProvider, db } from "../firebase";
+import Map from "./Map"; // ← We bring the map in here
 
 export default function TravelApp() {
   const [user] = useAuthState(auth);
   const [countryStatuses, setCountryStatuses] = useState({});
-  const dummyCountries = ["France", "Japan", "Brazil", "Canada"];
   const hasLoadedFromFirestore = useRef(false);
 
-  // Load saved country statuses from Firestore
   useEffect(() => {
     if (user) {
       const fetchData = async () => {
@@ -31,7 +30,6 @@ export default function TravelApp() {
     }
   }, [user]);
 
-  // Save to Firestore on state change (skip first load)
   useEffect(() => {
     if (user && hasLoadedFromFirestore.current) {
       const saveData = async () => {
@@ -84,30 +82,11 @@ export default function TravelApp() {
             <strong>✈️ Wishlist:</strong> {wishlist.length}
           </div>
 
-          <h2>Click to toggle:</h2>
-          <ul style={{ listStyle: "none", paddingLeft: 0 }}>
-            {dummyCountries.map((country) => {
-              const status = countryStatuses[country] || "none";
-              return (
-                <li
-                  key={country}
-                  onClick={() => handleToggleCountry(country)}
-                  style={{
-                    cursor: "pointer",
-                    padding: "4px 0",
-                    color:
-                      status === "visited"
-                        ? "lightgreen"
-                        : status === "wishlist"
-                        ? "gold"
-                        : "#aaa",
-                  }}
-                >
-                  {country} — {status}
-                </li>
-              );
-            })}
-          </ul>
+          {/* ✅ Render the actual interactive map */}
+          <Map
+            onCountrySelect={handleToggleCountry}
+            countryStatuses={countryStatuses}
+          />
         </>
       )}
     </div>
