@@ -1,12 +1,14 @@
 "use client";
 import React, { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { signInWithPopup, signOut } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 import styles from "../pages/Home.module.css";
 
 export default function TravelApp() {
   const [user] = useAuthState(auth);
   const [countryStatuses, setCountryStatuses] = useState({});
+  const dummyCountries = ["France", "Japan", "Brazil", "Canada"];
 
   const handleToggleCountry = (country) => {
     setCountryStatuses((prev) => {
@@ -28,24 +30,18 @@ export default function TravelApp() {
     ([, status]) => status === "visited"
   );
 
-  const dummyCountries = ["France", "Japan", "Brazil", "Canada"];
-
   return (
     <div className={styles.innerContainer}>
       <div className={styles.header}>
         <h1 className={styles.title}>Travel Tracker</h1>
         {user ? (
           <div className={styles.userInfo}>
-            <img
-              src={user.photoURL}
-              alt={user.displayName}
-              className={styles.avatar}
-            />
+            <img src={user.photoURL} alt={user.displayName} className={styles.avatar} />
             <span>{user.displayName}</span>
-            <button onClick={() => auth.signOut()}>Sign out</button>
+            <button onClick={() => signOut(auth)}>Sign out</button>
           </div>
         ) : (
-          <button onClick={() => auth.signInWithPopup(googleProvider)}>
+          <button onClick={() => signInWithPopup(auth, googleProvider)}>
             Sign in with Google
           </button>
         )}
