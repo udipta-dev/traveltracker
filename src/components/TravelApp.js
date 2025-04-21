@@ -25,23 +25,24 @@ export default function TravelApp() {
   const countries = Array.from(new Set([...countriesFromMap, ...extraCountryNames])).sort();
 
   useEffect(() => {
-    if (user) {
-      const fetchData = async () => {
+    const resetAndFetch = async () => {
+      setCountryStatuses({}); // ❗ Clear any lingering data first
+      hasLoadedFromFirestore.current = false;
+  
+      if (user) {
         const docRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(docRef);
+  
         if (docSnap.exists()) {
           setCountryStatuses(docSnap.data().countryStatuses || {});
-        } else {
-          setCountryStatuses({});
         }
+  
         hasLoadedFromFirestore.current = true;
-      };
-      fetchData();
-    } else {
-      setCountryStatuses({});
-      hasLoadedFromFirestore.current = false;
-    }
-  }, [user]);
+      }
+    };
+  
+    resetAndFetch();
+  }, [user]);  
 
   useEffect(() => {
     if (user && hasLoadedFromFirestore.current) {
