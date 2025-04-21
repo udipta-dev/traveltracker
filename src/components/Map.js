@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import countryList from "../data/countryList";
+import mapNameAliases from "../data/mapNameAliases";
 import {
   ComposableMap,
   Geographies,
@@ -7,6 +9,8 @@ import {
   ZoomableGroup,
 } from "react-simple-maps";
 
+const allowedCountries = new Set(countryList);
+const normalize = (geoName) => mapNameAliases[geoName] || geoName;
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
 const extraMarkers = [
@@ -17,7 +21,7 @@ const extraMarkers = [
   { name: "Belau", coordinates: [134.5825, 7.4207] },
   { name: "Brunei", coordinates: [114.7277, 4.5353] },
   { name: "Comoros", coordinates: [43.8723, -11.6455] },
-  { name: "Dominica", coordinates: [-61.3710, 15.4150] },
+  { name: "Dominica", coordinates: [-61.371, 15.415] },
   { name: "Kiribati", coordinates: [-173.0236, 1.3297] },
   { name: "Liechtenstein", coordinates: [9.5554, 47.1419] },
   { name: "Maldives", coordinates: [73.2207, 3.2028] },
@@ -29,14 +33,14 @@ const extraMarkers = [
   { name: "Saint Kitts and Nevis", coordinates: [-62.782998, 17.357822] },
   { name: "Saint Lucia", coordinates: [-60.9789, 13.9094] },
   { name: "Saint Vincent and the Grenadines", coordinates: [-61.2872, 12.9843] },
-  { name: "Samoa", coordinates: [-172.1046, -13.7590] },
+  { name: "Samoa", coordinates: [-172.1046, -13.759] },
   { name: "San Marino", coordinates: [12.4578, 43.9333] },
   { name: "São Tomé and Príncipe", coordinates: [6.6159, 0.1864] },
   { name: "Seychelles", coordinates: [55.4521, -4.6796] },
   { name: "Singapore", coordinates: [103.8198, 1.3521] },
   { name: "Solomon Islands", coordinates: [159.4682, -9.6457] },
   { name: "Timor-Leste", coordinates: [125.7275, -8.8742] },
-  { name: "Tonga", coordinates: [-175.2027, -21.1790] },
+  { name: "Tonga", coordinates: [-175.2027, -21.179] },
   { name: "Tuvalu", coordinates: [179.194, -7.1095] },
   { name: "Vatican City", coordinates: [12.4534, 41.9029] },
 ];
@@ -51,106 +55,60 @@ const Map = ({ onCountrySelect, countryStatuses = {} }) => {
     status: "",
   });
 
-  const handleMoveEnd = (position) => {
-    setPosition(position);
-  };
-
-  const handleWheel = (event) => {
-    event.preventDefault();
-    if (event.deltaY < 0) {
-      setPosition((prev) => ({
-        ...prev,
-        zoom: Math.min(prev.zoom * 1.02, 8),
-      }));
-    } else {
-      setPosition((prev) => ({
-        ...prev,
-        zoom: Math.max(prev.zoom / 1.02, 1),
-      }));
-    }
-  };
-
-  const nextStatus = (current) => {
-    if (current === "none") return "wishlist";
-    if (current === "wishlist") return "visited";
-    return "none";
-  };
-
   const handleCountryClick = (name) => {
     onCountrySelect(name);
     const current = countryStatuses[name] || "none";
-    const upcoming = nextStatus(current);
+    const next =
+      current === "none" ? "wishlist" :
+      current === "wishlist" ? "visited" :
+      "none";
 
-    // Show toast tooltip near bottom center on mobile
     setTooltip({
       visible: true,
       x: window.innerWidth / 2,
       y: window.innerHeight - 100,
       name,
-      status: upcoming,
+      status: next,
     });
 
     setTimeout(() => setTooltip({ visible: false }), 2000);
   };
 
   return (
-    <div
-  style={{
-    width: "100%",
-    maxWidth: "100%",
-    height: "auto",
-    aspectRatio: "2 / 1", // keeps map proportional
-    margin: "0 auto",
-  }}
-  onWheel={handleWheel}
->
-
-<ComposableMap style={{ width: "100%", height: "auto" }}>
-        <ZoomableGroup
-          center={position.coordinates}
-          zoom={position.zoom}
-          onMoveEnd={handleMoveEnd}
-        >
+    <div style={{ width: "100%", aspectRatio: "2 / 1", margin: "0 auto" }}>
+      <ComposableMap style={{ width: "100%", height: "auto" }}>
+        <ZoomableGroup center={position.coordinates} zoom={position.zoom} onMoveEnd={setPosition}>
           <Geographies geography={geoUrl}>
             {({ geographies }) =>
               geographies.map((geo) => {
-                const name = geo.properties.name;
-                const status = countryStatuses[name] || "none";
+                const rawName = geo.properties.name;
+                const name = normalize(rawName);
+                const isClickable = allowedCountries.has(name);
+                const status = isClickable ? countryStatuses[name] || "none" : null;
+
                 let fill = "#f0f4ff";
                 if (status === "wishlist") fill = "#a5d8ff";
                 if (status === "visited") fill = "#ffc9de";
+                if (!isClickable) fill = "#e5e7eb"; // gray for non-countries
 
                 return (
                   <Geography
                     key={geo.rsmKey}
                     geography={geo}
-                    onClick={() => handleCountryClick(name)}
-                    onMouseEnter={(e) => {
+                    onClick={isClickable ? () => handleCountryClick(name) : undefined}
+                    onMouseEnter={isClickable ? (e) => {
                       const { clientX, clientY } = e;
-                      setTooltip({
-                        visible: true,
-                        x: clientX,
-                        y: clientY,
-                        name,
-                        status,
-                      });
-                    }}
-                    onMouseLeave={() => setTooltip({ visible: false })}
+                      setTooltip({ visible: true, x: clientX, y: clientY, name, status });
+                    } : undefined}
+                    onMouseLeave={isClickable ? () => setTooltip({ visible: false }) : undefined}
                     style={{
-                      default: {
-                        fill,
-                        outline: "none",
-                        stroke: "#ccc",
-                        strokeWidth: 0.3,
-                      },
+                      default: { fill, stroke: "#ccc", strokeWidth: 0.3 },
                       hover: {
-                        fill: "#c5e4ff",
-                        outline: "none",
-                        cursor: "pointer",
+                        fill: isClickable ? "#c5e4ff" : fill,
+                        cursor: isClickable ? "pointer" : "default",
                       },
                       pressed: {
-                        fill: "#fab8d9",
-                        outline: "none",
+                        fill: isClickable ? "#fab8d9" : fill,
                       },
                     }}
                   />
@@ -193,24 +151,20 @@ const Map = ({ onCountrySelect, countryStatuses = {} }) => {
       </ComposableMap>
 
       {tooltip.visible && (
-        <div
-          style={{
-            position: "fixed",
-            top: tooltip.y,
-            left: tooltip.x,
-            transform: "translate(-50%, -50%)",
-            background: "#1e293b",
-            color: "#f1f5f9",
-            padding: "8px 14px",
-            borderRadius: "10px",
-            fontSize: "15px",
-            pointerEvents: "none",
-            zIndex: 1000,
-            boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-            whiteSpace: "nowrap",
-            textAlign: "center",
-          }}
-        >
+        <div style={{
+          position: "fixed",
+          top: tooltip.y,
+          left: tooltip.x,
+          transform: "translate(-50%, -50%)",
+          background: "#1e293b",
+          color: "#f1f5f9",
+          padding: "8px 14px",
+          borderRadius: "10px",
+          fontSize: "15px",
+          pointerEvents: "none",
+          zIndex: 1000,
+          boxShadow: "0 2px 6px rgba(0,0,0,0.3)"
+        }}>
           <strong>{tooltip.name}</strong>
           <br />
           Now: {tooltip.status === "none" ? "Not selected" : tooltip.status}

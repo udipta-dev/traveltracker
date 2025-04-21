@@ -6,6 +6,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, googleProvider, db } from "../firebase";
 import Map from "./Map";
 import useCountryNames from "../hooks/useCountryNames";
+import countryList from "../data/countryList"; // ⬅ new import
 
 const extraCountryNames = [/*...your extra country list*/];
 
@@ -14,8 +15,7 @@ export default function TravelApp() {
     const [countryStatuses, setCountryStatuses] = useState({});
     const hasLoadedFromFirestore = useRef(false);
     const listRef = useRef(null);
-    const countriesFromMap = useCountryNames();
-    const countries = Array.from(new Set([...countriesFromMap, ...extraCountryNames])).sort();
+    const countries = countryList;
 
     const scrollToList = () => {
         if (listRef.current) {
