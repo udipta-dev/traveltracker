@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import countryList from "../data/countryList";
 import mapNameAliases from "../data/mapNameAliases";
+import { feature } from "topojson-client";
 import {
   ComposableMap,
   Geographies,
@@ -9,11 +10,10 @@ import {
   ZoomableGroup,
 } from "react-simple-maps";
 
-const allowedCountries = new Set(countryList);
 const normalize = (geoName) => mapNameAliases[geoName] || geoName;
-const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
+const allowedCountries = new Set(countryList);
+const topoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
-// Show these microstates as extra markers
 const extraMarkers = [
   { name: "Andorra", coordinates: [1.5218, 42.5063] },
   { name: "Antigua and Barbuda", coordinates: [-61.8468, 17.1124] },
@@ -27,7 +27,7 @@ const extraMarkers = [
   { name: "Kiribati", coordinates: [-173.0236, 1.3297] },
   { name: "Liechtenstein", coordinates: [9.5554, 47.1419] },
   { name: "Maldives", coordinates: [73.2207, 3.2028] },
-  { name: "Malta", coordinates: [14.3754, 35.8997] },  
+  { name: "Malta", coordinates: [14.3754, 35.8997] },
   { name: "Marshall Islands", coordinates: [171.1845, 7.1315] },
   { name: "Micronesia", coordinates: [151.9167, 7.4247] },
   { name: "Monaco", coordinates: [7.4246, 43.7384] },
@@ -48,8 +48,18 @@ const extraMarkers = [
 ];
 
 const Map = ({ onCountrySelect, countryStatuses = {} }) => {
+  const [geographies, setGeographies] = useState([]);
   const [position, setPosition] = useState({ coordinates: [0, 20], zoom: 1.8 });
   const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, name: "", status: "" });
+
+  useEffect(() => {
+    fetch(topoUrl)
+      .then((res) => res.json())
+      .then((topology) => {
+        const geoFeatures = feature(topology, topology.objects.countries).features;
+        setGeographies(geoFeatures);
+      });
+  }, []);
 
   const handleMoveEnd = (pos) => setPosition(pos);
 
@@ -78,22 +88,13 @@ const Map = ({ onCountrySelect, countryStatuses = {} }) => {
   };
 
   return (
-    <div
-      style={{
-        width: "100%",
-        maxWidth: "100%",
-        height: "auto",
-        aspectRatio: "2 / 1",
-        margin: "0 auto",
-      }}
-      onWheel={handleWheel}
-    >
+    <div style={{ width: "100%", aspectRatio: "2 / 1" }} onWheel={handleWheel}>
       <ComposableMap style={{ width: "100%", height: "auto" }}>
         <ZoomableGroup center={position.coordinates} zoom={position.zoom} onMoveEnd={handleMoveEnd}>
-          <Geographies geography={geoUrl}>
+          <Geographies geography={{ type: "FeatureCollection", features: geographies }}>
             {({ geographies }) =>
               geographies.map((geo) => {
-                const rawName = geo.properties.name;
+                const rawName = geo.properties.name || geo.properties.NAME;
                 const name = normalize(rawName);
                 const isCountry = allowedCountries.has(name);
                 const status = countryStatuses[name] || "none";
@@ -104,7 +105,7 @@ const Map = ({ onCountrySelect, countryStatuses = {} }) => {
 
                 return (
                   <Geography
-                    key={geo.rsmKey}
+                    key={geo.rsmKey || name}
                     geography={geo}
                     onClick={() => isCountry && handleCountryClick(name)}
                     onMouseEnter={(e) => {

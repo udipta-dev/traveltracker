@@ -1,33 +1,34 @@
-// data/mapNameAliases.js
 const mapNameAliases = {
-    "United States of America": "United States",
-    "Democratic Republic of the Congo": "Congo, Democratic Republic of the",
-    "Republic of the Congo": "Congo, Republic of the",
-    "Korea, Republic of": "South Korea",
-    "Korea, Democratic People's Republic of": "North Korea",
-    "Russian Federation": "Russia",
-    "Syrian Arab Republic": "Syria",
-    "Viet Nam": "Vietnam",
-    "Côte d'Ivoire": "Côte d’Ivoire",
-    "Lao People's Democratic Republic": "Laos",
+    "Dem. Rep. Congo": "Congo, Democratic Republic of the",
+    "Congo": "Congo, Republic of the",
+    "Eq. Guinea": "Equatorial Guinea",
+    "eSwatini": "Eswatini",
+    "Ivory Coast": "Côte d’Ivoire",
+    "Central African Rep.": "Central African Republic",
+    "Dominican Rep.": "Dominican Republic",
+    "S. Korea": "Korea, South",
+    "South Korea": "Korea, South",
+  "North Korea": "Korea, North",
+    "Palestine": "Palestine",
+    "The Bahamas": "The Bahamas",
+    "Gambia": "The Gambia",
+    "Solomon Is.": "Solomon Islands",
+    "Bosnia and Herz.": "Bosnia and Herzegovina",
+    "Macedonia": "North Macedonia",
     "Czechia": "Czech Republic",
-    "United Republic of Tanzania": "Tanzania",
-    "Eswatini (fmr. 'Swaziland')": "Eswatini",
-    "Palestine": null, // Optional: omit altogether
-    "South Sudan": "Sudan, South",
-    "Western Sahara": "Sahara, Western",
-    "Somaliland": "Somalia",
-    "Myanmar": "Burma",
-    "Bosnia and Herzegovina": "Bosnia",
-    "Equatorial Guinea": "Equatorial Guinea",
-    "Bosnia and Herz.": "Bosnia",
-    "Sao Tome and Principe": "São Tomé and Príncipe",
+    "Myanmar": "Myanmar (Burma)",
+    "Micronesia": "Micronesia, Federated States of",
+    "United States of America": "United States",
     "Timor-Leste": "East Timor (Timor-Leste)",
-    "The Bahamas": "Bahamas", // This might be a duplicate issue (Bahamas and The Bahamas)
-    "North Macedonia": "Macedonia", // Normalize the naming
-    "United Kingdom of Great Britain and Northern Ireland": "United Kingdom", // Handle long name form
-    "Myanmar (Burma)": "Myanmar", // Standardize name form
-    // Add more as needed
-};
-
-export default mapNameAliases;
+    "Trinidad and Tobago": "Trinidad and Tobago", // double check case
+    "Greenland": null,
+    "Falkland Is.": null,
+    "Fr. S. Antarctic Lands": null,
+    "Antarctica": null,
+    "N. Cyprus": "Northern Cyprus",
+    "New Caledonia": null,
+    "Puerto Rico": null,
+    "Somaliland": "Somaliland"
+  };
+  
+  export default mapNameAliases;
