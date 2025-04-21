@@ -14,8 +14,13 @@ const mapNameAliases = {
     "United Republic of Tanzania": "Tanzania",
     "Eswatini (fmr. 'Swaziland')": "Eswatini",
     "Palestine": null, // Optional: omit altogether
+    "South Sudan": "Sudan, South",
+    "Western Sahara": "Sahara, Western",
+    "Somaliland": "Somalia",
+    "Myanmar": "Burma",
+    "Bosnia and Herzegovina": "Bosnia",
+    "Equatorial Guinea": "Equatorial Guinea",
     // Add more as needed
-  };
-  
-  export default mapNameAliases;
-  
+};
+
+export default mapNameAliases;
