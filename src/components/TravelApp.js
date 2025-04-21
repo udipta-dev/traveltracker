@@ -86,9 +86,9 @@ export default function TravelApp() {
         objectFit: "cover"
     };
 
-    const totalMarked = wishlist.length + visited.length;
-    const totalCountries = countries.length;
-    const progressPercent = Math.round((totalMarked / totalCountries) * 100);
+    const totalMarked = visited.length; // only count visited
+const totalCountries = countries.length;
+const progressPercent = Math.round((totalMarked / totalCountries) * 100);
 
     return (
         <div style={{ padding: "16px", color: "#fff", maxWidth: "100%", boxSizing: "border-box", margin: "0 auto" }}>

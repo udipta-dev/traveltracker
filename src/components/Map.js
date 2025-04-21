@@ -14,6 +14,7 @@ const normalize = (geoName) => mapNameAliases[geoName] || geoName;
 const allowedCountries = new Set(countryList);
 const topoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
+// Additional small countries (rendered as dots)
 const extraMarkers = [
   { name: "Andorra", coordinates: [1.5218, 42.5063] },
   { name: "Antigua and Barbuda", coordinates: [-61.8468, 17.1124] },
@@ -45,7 +46,22 @@ const extraMarkers = [
   { name: "Tonga", coordinates: [-175.2027, -21.179] },
   { name: "Tuvalu", coordinates: [179.194, -7.1095] },
   { name: "Vatican City", coordinates: [12.4534, 41.9029] },
+  { name: "South Sudan", coordinates: [31.5, 7.5] },
+  { name: "Western Sahara", coordinates: [-13.5, 24.5] },
+  { name: "Somaliland", coordinates: [45.0, 9.8] },
 ];
+
+// Fallback markers for countries that may be missing or unclickable
+[
+  { name: "South Sudan", coordinates: [31.5, 7.5] },
+  { name: "Western Sahara", coordinates: [-13.0, 24.0] },
+  { name: "Somaliland", coordinates: [45.0, 10.5] },
+  { name: "Ivory Coast (Côte d’Ivoire)", coordinates: [-5.5, 7.5] },
+].forEach((m) => {
+  if (!extraMarkers.some((e) => e.name === m.name)) {
+    extraMarkers.push(m);
+  }
+});
 
 const Map = ({ onCountrySelect, countryStatuses = {} }) => {
   const [geographies, setGeographies] = useState([]);
@@ -57,8 +73,11 @@ const Map = ({ onCountrySelect, countryStatuses = {} }) => {
       .then((res) => res.json())
       .then((topology) => {
         const geoFeatures = feature(topology, topology.objects.countries).features;
+        const names = geoFeatures.map((f) => f.properties.name || f.properties.NAME);
+        console.log("Names from TopoJSON:", names);  // 👈 this will now log properly
         setGeographies(geoFeatures);
-      });
+      })
+      .catch((err) => console.error("Error loading TopoJSON:", err));
   }, []);
 
   const handleMoveEnd = (pos) => setPosition(pos);
@@ -72,7 +91,8 @@ const Map = ({ onCountrySelect, countryStatuses = {} }) => {
   };
 
   const handleCountryClick = (name) => {
-    onCountrySelect(name);
+    const officialName = normalize(name);
+onCountrySelect(officialName);
     const current = countryStatuses[name] || "none";
     const next = current === "none" ? "wishlist" : current === "wishlist" ? "visited" : "none";
 
