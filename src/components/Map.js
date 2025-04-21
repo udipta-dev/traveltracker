@@ -27,6 +27,7 @@ const extraMarkers = [
   { name: "Kiribati", coordinates: [-173.0236, 1.3297] },
   { name: "Liechtenstein", coordinates: [9.5554, 47.1419] },
   { name: "Maldives", coordinates: [73.2207, 3.2028] },
+  { name: "Malta", coordinates: [14.3754, 35.8997] },  
   { name: "Marshall Islands", coordinates: [171.1845, 7.1315] },
   { name: "Micronesia", coordinates: [151.9167, 7.4247] },
   { name: "Monaco", coordinates: [7.4246, 43.7384] },

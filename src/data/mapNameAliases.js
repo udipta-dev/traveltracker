@@ -20,6 +20,13 @@ const mapNameAliases = {
     "Myanmar": "Burma",
     "Bosnia and Herzegovina": "Bosnia",
     "Equatorial Guinea": "Equatorial Guinea",
+    "Bosnia and Herz.": "Bosnia",
+    "Sao Tome and Principe": "São Tomé and Príncipe",
+    "Timor-Leste": "East Timor (Timor-Leste)",
+    "The Bahamas": "Bahamas", // This might be a duplicate issue (Bahamas and The Bahamas)
+    "North Macedonia": "Macedonia", // Normalize the naming
+    "United Kingdom of Great Britain and Northern Ireland": "United Kingdom", // Handle long name form
+    "Myanmar (Burma)": "Myanmar", // Standardize name form
     // Add more as needed
 };
 
