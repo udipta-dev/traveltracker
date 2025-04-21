@@ -21,6 +21,7 @@ const extraMarkers = [
   { name: "Barbados", coordinates: [-59.5432, 13.1939] },
   { name: "Belau", coordinates: [134.5825, 7.4207] },
   { name: "Brunei", coordinates: [114.7277, 4.5353] },
+  { name: "Cabo Verde", coordinates: [-23.5797, 14.933] },
   { name: "Comoros", coordinates: [43.8723, -11.6455] },
   { name: "Dominica", coordinates: [-61.371, 15.415] },
   { name: "Kiribati", coordinates: [-173.0236, 1.3297] },

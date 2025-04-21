@@ -121,7 +121,8 @@ export default function TravelApp() {
 
             {/* Header */}
             <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", alignItems: "center", marginBottom: "16px" }}>
-                <h1 style={{ fontSize: "2rem", margin: 0 }}>🌍 Travel Tracker</h1>
+                <h1 style={{ fontFamily: 'Lobster, cursive', fontSize: '2rem', margin: 0 }}>
+                🌍 JourneyMap</h1>
 
                 {user ? (
                     <div className="desktop-header-right" style={{ display: "none" }}>
@@ -147,55 +148,55 @@ export default function TravelApp() {
 
             {/* Stats */}
             {user && (
-  <div
-    style={{
-      margin: "20px auto",
-      padding: "10px 20px",
-      maxWidth: 400,
-      background: "rgba(255, 255, 255, 0.1)",
-      border: "1px solid rgba(255, 255, 255, 0.3)",
-      borderRadius: "10px",
-      fontWeight: "bold",
-      fontSize: "16px",
-      backdropFilter: "blur(4px)",
-      boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
-    }}
-  >
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        flexWrap: "wrap",
-        gap: "10px",
-        alignItems: "center",
-      }}
-    >
-      <span>✅ Visited: {visited.length}</span>
-      <span>✈️ Wishlist: {wishlist.length}</span>
-    </div>
+                <div
+                    style={{
+                        margin: "20px auto",
+                        padding: "10px 20px",
+                        maxWidth: 400,
+                        background: "rgba(255, 255, 255, 0.1)",
+                        border: "1px solid rgba(255, 255, 255, 0.3)",
+                        borderRadius: "10px",
+                        fontWeight: "bold",
+                        fontSize: "16px",
+                        backdropFilter: "blur(4px)",
+                        boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+                    }}
+                >
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            flexWrap: "wrap",
+                            gap: "10px",
+                            alignItems: "center",
+                        }}
+                    >
+                        <span>✅ Visited: {visited.length}</span>
+                        <span>✈️ Wishlist: {wishlist.length}</span>
+                    </div>
 
-    {/* Progress Bar */}
-    <div style={{ marginTop: "10px" }}>
-      <div style={{
-        height: "10px",
-        width: "100%",
-        backgroundColor: "#334155",
-        borderRadius: "5px",
-        overflow: "hidden"
-      }}>
-        <div style={{
-          height: "100%",
-          width: `${progressPercent}%`,
-          backgroundColor: "#10b981",
-          transition: "width 0.4s ease"
-        }} />
-      </div>
-      <div style={{ textAlign: "center", fontSize: "14px", marginTop: "6px" }}>
-        {progressPercent}% complete
-      </div>
-    </div>
-  </div>
-)}
+                    {/* Progress Bar */}
+                    <div style={{ marginTop: "10px" }}>
+                        <div style={{
+                            height: "10px",
+                            width: "100%",
+                            backgroundColor: "#334155",
+                            borderRadius: "5px",
+                            overflow: "hidden"
+                        }}>
+                            <div style={{
+                                height: "100%",
+                                width: `${progressPercent}%`,
+                                backgroundColor: "#10b981",
+                                transition: "width 0.4s ease"
+                            }} />
+                        </div>
+                        <div style={{ textAlign: "center", fontSize: "14px", marginTop: "6px" }}>
+                            {progressPercent}% complete
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Map */}
             <div style={{ marginBottom: "24px" }}>
