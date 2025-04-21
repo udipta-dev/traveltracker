@@ -95,10 +95,17 @@ const Map = ({ onCountrySelect, countryStatuses = {} }) => {
 
   return (
     <div
-      style={{ width: "100%", maxWidth: 800, height: 500, margin: "0 auto" }}
-      onWheel={handleWheel}
-    >
-      <ComposableMap width={800} height={500}>
+  style={{
+    width: "100%",
+    maxWidth: "100%",
+    height: "auto",
+    aspectRatio: "2 / 1", // keeps map proportional
+    margin: "0 auto",
+  }}
+  onWheel={handleWheel}
+>
+
+<ComposableMap style={{ width: "100%", height: "auto" }}>
         <ZoomableGroup
           center={position.coordinates}
           zoom={position.zoom}
