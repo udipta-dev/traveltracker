@@ -17,6 +17,11 @@ export default function TravelApp() {
     const listRef = useRef(null);
     const countries = countryList;
 
+    const getAvatarUrl = (user) => {
+        const defaultAvatar = "https://raw.githubusercontent.com/udipta-dev/geojson-host/refs/heads/main/traveler-default.png";
+        return user?.photoURL || defaultAvatar;
+    };
+
     const scrollToList = () => {
         if (listRef.current) {
             listRef.current.scrollIntoView({ behavior: "smooth" });
@@ -41,9 +46,38 @@ export default function TravelApp() {
     }, [user]);
 
     useEffect(() => {
+        const checkNickname = async () => {
+            if (!user) return;
+
+            const userDocRef = doc(db, "users", user.uid);
+            const userSnap = await getDoc(userDocRef);
+
+            if (userSnap.exists()) {
+                const nicknameFromProfile = userSnap.data()?.profile?.nickname;
+
+                if (nicknameFromProfile) {
+                    const nicknameDocRef = doc(db, "nicknames", nicknameFromProfile);
+                    const nicknameSnap = await getDoc(nicknameDocRef);
+
+                    if (nicknameSnap.exists() && nicknameSnap.data()?.uid === user.uid) {
+                        // ✅ Valid nickname already assigned to this user
+                        setNickname(nicknameFromProfile);
+                        return; // ✅ Exit early — don't show modal
+                    }
+                }
+            }
+
+            // ❌ Either no nickname or not owned by user
+            setShowNicknameModal(true);
+        };
+
+        checkNickname();
+    }, [user]);
+
+    useEffect(() => {
         if (user && hasLoadedFromFirestore.current) {
             const saveData = async () => {
-                await setDoc(doc(db, "users", user.uid), { countryStatuses });
+                await setDoc(doc(db, "users", user.uid), { countryStatuses }, { merge: true });
             };
             saveData();
         }
@@ -79,6 +113,10 @@ export default function TravelApp() {
     const visited = Object.entries(countryStatuses).filter(([, status]) => status === "visited");
     const [searchTerm, setSearchTerm] = useState("");
 
+    const [nickname, setNickname] = useState("");
+    const [showNicknameModal, setShowNicknameModal] = useState(false);
+    const [isNicknameTaken, setIsNicknameTaken] = useState(false);
+
     const buttonStyle = {
         padding: "6px 12px",
         backgroundColor: "#334155",
@@ -89,10 +127,11 @@ export default function TravelApp() {
     };
 
     const avatarStyle = {
-        width: "36px",
-        height: "36px",
+        width: "40px",
+        height: "40px",
         borderRadius: "50%",
-        objectFit: "cover"
+        objectFit: "cover",
+        border: "1px solid white"
     };
 
     const totalMarked = visited.length; // only count visited
@@ -130,6 +169,90 @@ export default function TravelApp() {
                         <p>Track the countries you've visited or dream to visit.</p>
                         <p>Your progress stays saved — just click on any country to get started!</p>
                         <p style={{ marginTop: "24px", fontWeight: "bold" }}>Click anywhere to begin</p>
+                    </div>
+                </div>
+            )}
+
+            {showNicknameModal && (
+                <div
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        width: "100vw",
+                        height: "100vh",
+                        backgroundColor: "rgba(0,0,0,0.8)",
+                        color: "#fff",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 9999,
+                        textAlign: "center",
+                        padding: "20px",
+                        boxSizing: "border-box",
+                    }}
+                >
+                    <div style={{ background: "#1e293b", padding: "24px", borderRadius: "12px", maxWidth: "400px", width: "100%" }}>
+                        <h2 style={{ marginBottom: "16px" }}>Choose a nickname</h2>
+                        <input
+                            type="text"
+                            value={nickname}
+                            onChange={(e) => {
+                                const val = e.target.value.toLowerCase();
+                                if (/^[a-z0-9_]{0,10}$/.test(val)) {
+                                    setNickname(val);
+                                }
+                            }}
+                            placeholder="e.g. neo88"
+                            style={{
+                                width: "100%",
+                                padding: "8px 12px",
+                                marginBottom: "12px",
+                                borderRadius: "6px",
+                                border: "1px solid #ccc",
+                                fontSize: "16px",
+                            }}
+                        />
+                        <p style={{ fontSize: "13px", marginBottom: "10px", color: "#cbd5e1" }}>
+                            Your nickname is <strong>permanent</strong> and cannot be changed.
+                        </p>
+                        {isNicknameTaken && (
+                            <p style={{ color: "#f87171", marginBottom: "10px" }}>❌ That nickname is taken</p>
+                        )}
+                        <button
+                            style={{
+                                padding: "8px 16px",
+                                backgroundColor: "#10b981",
+                                border: "none",
+                                borderRadius: "6px",
+                                color: "#fff",
+                                fontWeight: "bold",
+                                cursor: "pointer",
+                                width: "100%",
+                            }}
+                            onClick={async () => {
+                                const nicknameRef = doc(db, "nicknames", nickname);
+                                const existing = await getDoc(nicknameRef);
+
+                                if (existing.exists()) {
+                                    const owner = existing.data()?.uid;
+                                    if (owner !== user.uid) {
+                                        setIsNicknameTaken(true);
+                                        return;
+                                    }
+                                }
+
+                                // Save nickname once (permanent)
+                                await setDoc(nicknameRef, { uid: user.uid });
+                                await setDoc(doc(db, "users", user.uid), {
+                                    profile: { nickname },
+                                }, { merge: true });
+
+                                setShowNicknameModal(false);
+                            }}
+                        >
+                            Save
+                        </button>
                     </div>
                 </div>
             )}
@@ -184,19 +307,33 @@ export default function TravelApp() {
                     {user ? (
                         <div className="desktop-header-right" style={{ display: "none" }}>
                             <button onClick={scrollToList} style={buttonStyle}>↓ List View</button>
-                            <img src={user.photoURL} alt="Avatar" style={avatarStyle} />
+                            <img src={getAvatarUrl(user)} alt="Avatar" style={avatarStyle} />
+                            <span style={{ fontWeight: "bold" }}>@{nickname}</span>
                             <button onClick={() => signOut(auth)} style={buttonStyle}>Sign out</button>
                         </div>
                     ) : (
-                        <button onClick={() => signInWithPopup(auth, googleProvider)} style={buttonStyle}>Sign in with Google</button>
+                        <button onClick={() => signInWithPopup(auth, googleProvider)} style={buttonStyle}>
+                            Sign in with Google
+                        </button>
                     )}
                 </div>
 
                 {/* Mobile-only header */}
                 {user && (
-                    <div className="mobile-header" style={{ display: "none" }}>
-                        <button onClick={scrollToList} style={buttonStyle}>↓ List View</button>
-                        <img src={user.photoURL} alt="Avatar" style={avatarStyle} />
+                    <div className="mobile-header" style={{
+                        display: "none",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: "10px",
+                        width: "100%", // so we can push "Sign out" to the right
+                        marginTop: "12px",
+                    }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                            <button onClick={scrollToList} style={buttonStyle}>↓ List View</button>
+                            <img src={getAvatarUrl(user)} alt="Avatar" style={avatarStyle} />
+                            <span style={{ fontWeight: "bold" }}>@{nickname}</span>
+                        </div>
                         <button onClick={() => signOut(auth)} style={buttonStyle}>Sign out</button>
                     </div>
                 )}
