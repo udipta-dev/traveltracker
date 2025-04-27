@@ -7,6 +7,9 @@ import { auth, googleProvider, db } from "../firebase";
 import Map from "./Map";
 import useCountryNames from "../hooks/useCountryNames";
 import countryList from "../data/countryList"; // ⬅ new import
+import SharePanel from "./SharePanel";
+
+console.log("TravelApp rendered");
 
 const extraCountryNames = [/*...your extra country list*/];
 
@@ -47,7 +50,21 @@ export default function TravelApp() {
 
     useEffect(() => {
         const checkNickname = async () => {
-            if (!user) return;
+            console.log(">>> checkNickname CALLED. user:", user); // 👈 ADD THIS LOG
+    
+            if (!user) {
+                console.log(">>> No user, exiting checkNickname");
+                return;
+            }
+    
+            if (user?.email) {
+                console.log(">>> Saving email to Firestore:", user.email, "uid:", user.uid); // 👈 ADD THIS LOG
+                await setDoc(doc(db, "users", user.uid), {
+                    email: user.email
+                }, { merge: true });
+            } else {
+                console.log(">>> NO user.email on user:", user); // 👈 ALREADY PRESENT, GOOD!
+            }
 
             const userDocRef = doc(db, "users", user.uid);
             const userSnap = await getDoc(userDocRef);
@@ -502,27 +519,36 @@ export default function TravelApp() {
                     </div>
                 </footer>
 
-                <button
-                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                <div
                     style={{
                         position: "fixed",
                         bottom: "20px",
-                        right: "20px", // ✅ moved to the right
-                        width: "36px",
-                        height: "36px",
-                        backgroundColor: "rgba(255, 255, 255, 0.1)",
-                        border: "1px solid rgba(255, 255, 255, 0.3)",
-                        color: "#fff",
-                        borderRadius: "10px",
-                        fontSize: "20px",
-                        cursor: "pointer",
+                        right: "20px",
+                        display: "flex",
+                        gap: "10px",
                         zIndex: 1000,
-                        backdropFilter: "blur(4px)",
+                        alignItems: "center",
                     }}
-                    title="Scroll to top"
                 >
-                    ↑
-                </button>
+                    <SharePanel />
+                    <button
+                        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                        style={{
+                            width: "36px",
+                            height: "36px",
+                            backgroundColor: "rgba(255, 255, 255, 0.1)",
+                            border: "1px solid rgba(255, 255, 255, 0.3)",
+                            color: "#fff",
+                            borderRadius: "10px",
+                            fontSize: "20px",
+                            cursor: "pointer",
+                            backdropFilter: "blur(4px)",
+                        }}
+                        title="Scroll to top"
+                    >
+                        ↑
+                    </button>
+                </div>
             </div>
         </>
     );

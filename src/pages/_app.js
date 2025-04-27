@@ -19,6 +19,7 @@ export default function App({ Component, pageProps }) {
         <meta name="twitter:title" content="JourneyMap" />
         <meta name="twitter:description" content="Track your travels, see your map, and share your journey." />
         <meta name="twitter:image" content="https://raw.githubusercontent.com/udipta-dev/geojson-host/refs/heads/main/JourneyMap%20Card.png" />
+        <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/udipta-dev/geojson-host/refs/heads/main/JourneyMap%20Favicon%20(1).png" />
       </Head>
       {/* Google Analytics */}
       <Script
